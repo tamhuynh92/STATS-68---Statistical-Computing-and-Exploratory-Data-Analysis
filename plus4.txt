@@ -1,0 +1,85 @@
+# Evaluation of coverage probability of Agresti Coull 
+# confidence interval for binomial proportion
+# Question 13.4 of R by Example
+
+plus4 = function(n, p, L) {
+  # n: number of trials
+  # p: true proportion (may be a vector)
+  # L: confidence level 
+  # returns the plus four interval
+  z = qnorm(1-(1-L)/2)
+  x = rbinom(length(p), n, p)
+  x.new = x + 2
+  n.new = n + 4
+  p.hat = x.new / n.new
+  s.e = sqrt(p.hat * (1 - p.hat) / n.new)
+  cbind(p.hat - z * s.e, p.hat + z * s.e)
+}
+
+cover.plus4 = function(n, p, L) {
+  # computes coverage probability by simulation
+  cnt = rep(0, length(p))
+  for(i in 1:10000) {
+    tmp = plus4(n, p, L)
+    cnt = cnt + (p >= tmp[,1] & p <= tmp[,2])
+  }
+  cnt / 10000
+}
+
+plot((1:999)/1000, cover.plus4(10, (1:999)/1000, 0.9))
+abline(h=0.9, lty=2, lwd=2)
+
+
+# t test example
+# data: survey done in a previous stat 68 class about hours of sleep last night
+sleep = c(7, 6, 9, 7, 7, 6, 8, 7, 10, 5, 6, 6, 6, 6, 8, 6, 5, 9, 5, 5)
+# normally distributed?
+hist(sleep)
+qqnorm(sleep)
+
+# t test and confidence interval
+t.test(sleep, mu=8, conf.level=0.9)
+
+# two sample t-test with twin data
+twins = read.table("https://eee.uci.edu/18s/37770/home/twins.dat.txt", header=T, sep=",", na.string=".")
+log.wages = log(twins$HRWAGEH)
+college = ifelse(twins$EDUCH > 12, "yes", "no")
+boxplot(log.wages ~ college, horizontal=TRUE, names=c("High School", "Some College"), xlab="log Wage")
+
+t.test(log.wages ~ college)
+
+# permutation test
+resamp = function() {
+  # resample the college indicator and compute average differences in log wages
+  new.college = sample(college)
+  t.test(log.wages ~ new.college)$statistic
+}
+
+m.obs = t.test(log.wages ~ college)$statistic
+# observed difference in log wages
+
+m.perm = replicate(1000, resamp())
+# how does the observed difference stand among all simulations if 
+# college status is unrelated to log wages?
+hist(m.perm)
+abline(v = m.obs)
+# two sided p value
+2 * mean(m.perm < m.obs)
+
+# paired t-test for difference in log wages between twins with different education levels
+
+twins.diff = subset(twins, EDUCL != EDUCH)
+twins.diff = twins.diff[complete.cases(twins.diff), ]
+log.wages.low = with(twins.diff, ifelse(EDUCL < EDUCH, log(HRWAGEL), log(HRWAGEH)))
+log.wages.high = with(twins.diff, ifelse(EDUCL < EDUCH, log(HRWAGEH), log(HRWAGEL)))
+t.test(log.wages.low, log.wages.high, paired=TRUE)
+
+# age of marathoners
+# Question 6.2 in R by Example
+
+marathon = read.table("https://eee.uci.edu/18s/37770/home/nyc-marathon.csv", header=T, sep=",")
+
+women.marathon = subset(marathon, marathon$Gender == "female")
+t.test(women.marathon$Age, mu=36.1, conf.level=0.9)
+wilcox.test(women.marathon$Age, mu=36.1)
+

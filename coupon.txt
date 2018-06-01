@@ -1,0 +1,57 @@
+# coupon collector’s problem
+
+complete.coupon = function(n) { 
+  # function to simulate how many draws are needed to get a complete set
+  # n is the number of different types of coupons
+  complete = 0 # indicator of whether the set is complete
+  distinct = 0 # current number of distinct coupons
+  num = 0 # number of coupons counting duplicates
+  coupons = rep(0, n) # vector of distinct coupons obtained so far
+  while(!complete) {
+    new.coupon = sample(1:n, 1)
+    num = num + 1
+    if(all(new.coupon != coupons)){ # found a new one
+      distinct = distinct + 1 
+      coupons[distinct]= new.coupon
+    }
+    if(distinct == n) complete = 1
+  }
+  num
+}
+
+collect2 = function(n, n.r){  cost.r = 0.05 # cost of a random coupon  cost.n = 0.25 # cost of a specific coupon from dealer  samp.coupon = sample(1:n, size=n.r, replace=TRUE)  distinct = length(unique(samp.coupon))  n.r * cost.r + (n - distinct) * cost.n # total cost to complete the set}
+
+costs = replicate(500, collect2(10, 30))
+
+expected.cost = function(n, n.r) {
+  mean(replicate(5000, collect2(n, n.r))) 
+  # average cost of completing the set of n coupons when 
+  # you collect n.r random coupons and buy the rest from the dealer
+}
+
+e.cost=1:50
+for(i in 1:50) {
+  e.cost[i] = expected.cost(10, i)
+}
+plot(1:50, e.cost, xlab="number of random coupons", ylab="expected cost to get a complete set of 10")
+
+# hitting streaks
+
+y = c(1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 1) # an example of a hitting sequence
+
+longest.streak=function(y) {
+  loc.zeros = which(c(0, y, 0) == 0) # finding the games that have no hits
+  streak.len = diff(loc.zeros) - 1 # length of hitting streaks
+  streak.len = streak.len[streak.len > 0] # excluding consecutive no hits
+  max(streak.len)
+}
+
+dat = read.table("https://eee.uci.edu/18s/37770/home/utley2006.txt", header=TRUE, sep="\t")
+utley = as.numeric(dat$H > 0)
+longest.streak(utley)
+
+L = replicate(100000, longest.streak(sample(utley))) 
+# compute the longest streak in a randomly permuted version of 
+# Utley’s hitting record and replicate many times
+plot(table(L))abline(v=35, lwd=3)text(38, 10000, "Utley")
+

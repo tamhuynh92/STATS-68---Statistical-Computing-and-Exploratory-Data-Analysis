@@ -1,0 +1,26 @@
+# simulated data for checking linear regression assumptions
+par(mfrow=c(2,2))
+
+# assumptions met?
+x = rnorm(200, 0, 1)
+y = 0.9 * x + rnorm(200, 0, 0.5)
+plot(x, y)
+# linear?
+reg1 = lm(y ~ x)
+abline(reg1)
+plot(x, reg1$residuals)
+
+y2 = 0.9 * x + 0.2 * x^2 + rnorm(200, 0, 0.5)
+plot(x, y2)
+reg2 = lm(y2 ~ x)
+abline(reg2)
+plot(x, reg2$residuals)
+
+x = runif(200, 0, 1)
+ypo = rpois(200, 20 * x + 1)
+plot(x, ypo)
+reg3 = lm(ypo ~ x)
+abline(reg3)
+plot(x, reg3$residuals)
+qqnorm(reg3$residuals)
+

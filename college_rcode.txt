@@ -1,0 +1,85 @@
+dat = read.table("https://eee.uci.edu/18s/37770/home/college.txt", header=TRUE, sep="\t")
+
+college = subset(dat, complete.cases(dat))
+
+stripchart(college$Retention, method="stack", pch=19,
+xlab="Retention Percentage")
+
+stripchart(Retention ~ Tier, method="stack", pch=19,
+xlab="Retention Percentage",
+ylab="Tier", xlim=c(50, 100), data=college)
+
+identify(college$Retention, college$Tier, n=2,
+labels=college$School)
+
+b.output = boxplot(Retention ~ Tier, data=college, horizontal=TRUE,
+ylab="Tier", xlab="Retention")
+
+b.output$stats
+
+b.output$out
+
+b.output$group
+
+plot(college$Retention, college$Grad.rate,
+xlab="Retention", ylab="Graduation Rate")
+
+fit = line(college$Retention, college$Grad.rate)
+coef(fit)
+
+plot(college$Retention, fit$residuals,
+xlab="Retention", ylab="Residual")
+abline(h=0)
+
+identify(college$Retention, fit$residuals, n=2,
+labels=college$School)
+
+college1 = subset(college, Tier==1)
+
+stem(college1$Top.10)
+
+froot = sqrt(college1$Top.10) - sqrt(100 - college1$Top.10)
+flog = log(college1$Top.10 + 0.5) - log(100 - college1$Top.10 + 0.5)
+
+stem(froot)
+stem(flog)
+
+college34 = subset(college, Tier==3 | Tier==4)
+froot = sqrt(college34$Top.10) - sqrt(100 - college34$Top.10)
+boxplot(froot ~ Tier, data=college34, horizontal=TRUE,
+xlab="Froot(Top 10 Pct)", ylab="Tier")
+
+
+# Exercise 5.2 in text: R by Example
+attach(college)
+plot(Pct.20, Pct.50)
+lpct = line(Pct.20, Pct.50)
+abline(lpct$coefficients)
+sum(lpct$coefficients*c(1, 60))
+# [1] 7.798246
+# expected Pct.50 for a school with Pct.20 = 60
+plot(Pct.20, lpct$residuals)
+abline(h=0)
+# residuals for smaller Pct.20 have more variation
+identify(Pct.20, lpct$residuals, n=7, labels=School)
+# large positive (negative) residuals imply that 
+# compared with what one might expect from the 
+# straight line fit, these schools have higher (lower) 
+# percentages of large (>= 50) classes
+
+# Exercise 5.5
+hist(Full.time)
+froot = sqrt(Full.time) - sqrt(100-Full.time)
+flog = log(Full.time + 0.5) - log(100.5 - Full.time)
+# adding small numbers to avoid log(0)
+hist(froot)
+hist(flog)
+# more symmetric than before
+sd = sqrt(var(flog))
+m = mean(flog)
+c(m - sd, m + sd)
+# [1] 1.204760 3.037732
+# how about the real percentage between these 
+sum(m - sd < flog & flog < m + sd) / length(flog)
+# [1] 0.7086957
+

@@ -1,0 +1,41 @@
+hitting.data = read.table("https://eee.uci.edu/18s/37770/home/batting.history.txt", header=T)
+
+attach(hitting.data)
+
+plot(Year, HR)
+
+plot(Year, HR, xlab="Season", type="b",
+ylab="Avg. Home Runs Hit by a Team in a Game",
+main="Home Run Hitting in the MLB Across Seasons", cex=1.5, pch=19, ylim=c(0, 1.5))
+
+plot(Year, HR, xlab="Season",
+ylab="Avg. Home Runs Hit by a Team in a Game",
+main="Home Run Hitting in the MLB Across Seasons")
+lines(lowess(Year, HR), lwd=2)
+lines(lowess(Year, HR, f=1 / 3), lty="dashed", lwd=2)
+lines(lowess(Year, HR, f=1 / 12), lty="dotdash", lwd=2)
+
+legend("topleft", legend=c("f = 2/3", "f = 1/3",
+"f = 1/12"), lty=c(1, 2, 4), lwd=2, inset=0.05)
+
+colors()
+
+plot(1:10, c(5, 4, 3, 2, 1, 2, 3, 4, 3, 2),
+pch=19, cex=5,
+col=c("red", "blue", "green", "beige", "goldenrod",
+"turquoise", "salmon", "purple", "pink", "seashell"))
+
+fit = lowess(Year, HR, f=1 / 12)
+Residual = HR - fit$y
+plot(Year, Residual)
+abline(h=0)
+identify(Year, Residual, n=2, labels=Year)
+
+library(lattice)
+xyplot(mpg ~ wt, data=mtcars, xlab="Weight",
+ylab="Mileage",
+main="Scatterplot of Weight and Mileage for 32 Cars")
+
+xyplot(mpg ~ wt | cyl, data=mtcars, pch=19, cex=1.5,
+xlab="Weight", ylab="Mileage")
+

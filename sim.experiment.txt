@@ -1,0 +1,57 @@
+new.sample = function(x, size, replace=F) { 
+  if(length(x) > 1)
+     sample(x, size, replace)
+  else if(length(x) == 1)
+     x
+  else stop('nothing to sample from!')
+}
+
+# Monty Hall problem
+
+monty.hall = function(n=3, m=1, switch=T){
+  # n: total number of doors
+  # m: number of empty doors to be opened by the hostess
+  # be careful: if x is an integer, sample(x,…) draws a random sample from 1:x
+  # use new.sample instead
+  doors = 1:n
+  prize = new.sample(doors, 1)
+  pick = new.sample(doors, 1)  
+  open = new.sample(doors[-c(pick, prize)], m)
+  if(switch)
+    pick = new.sample(doors[-c(open, pick)], 1)
+  pick == prize 
+}
+
+# hat problem
+
+hat.prob = function(n) {
+  hats = 1:n
+  mix.hats = sample(hats) # by default a random permutation is returned
+  sum(mix.hats==hats) # how many hats match their owners?
+}
+
+n=30
+nrep=10000 # repeat 10000 times
+matches = 1:nrep
+
+for(i in 1:nrep) matches[i] = hat.prob(30)
+
+table(matches)
+# we can now compare with Poisson(1) through chisq.test()
+
+# gambler’s fortune
+
+gamble1 = function(n=50){
+  sum(sample(c(-1, 1), size=n, replace=TRUE))
+}
+
+gamble2 = function(n=50){
+  win=sample(c(-1, 1), size=n, replace=TRUE)
+  cum.win = cumsum(win)
+  M=max(cum.win) # return value
+}
+
+max.lead = 1:10000
+for(i in 1:10000) max.lead[i] = gamble2()
+sum(max.lead >= 10) / 10000
+
